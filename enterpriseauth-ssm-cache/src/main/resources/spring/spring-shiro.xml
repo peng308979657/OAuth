@@ -9,10 +9,18 @@
 	<!-- 定义注解的扫描包，也就是说你必须配置好扫描包之后才可以扫描该包中所有类上出现的注解信息 -->
 	<context:component-scan base-package="cn.mldn"/>
 	<!-- 进行Shiro中缓存管理器的配置，现在就实现了EhCache-Shiro组件的配置 -->
-	<bean id="cacheManager" class="org.apache.shiro.cache.ehcache.EhCacheManager">
-		<!-- 配置EHCache组件要使用的配置文件的路径 -->
-		<property name="cacheManagerConfigFile" value="classpath:shiro/ehcache.xml"/>
-	</bean>
+	<bean id="cacheManager" class="cn.mldn.enterpriseauth.ssm.util.cache.manager.RedisCacheManager">
+		<property name="connectionFactoryMap">
+			<map>
+				<!-- 配置认证缓存的Redis数据库连接池 -->
+				<entry key="authentication" value-ref="connectionFactoryAuthentication"/>
+				<!-- 配置授权缓存的Redis数据库连接池 -->
+				<entry key="authorization" value-ref="connectionFactoryAuthorization"/>
+				<!-- Session数据的缓存处理 -->
+				<entry key="activeSessionCache" value-ref="connectionFactoryActiveSessionCache"/>
+			</map>
+		</property>
+	</bean> 
 	
 	<!-- 定义一个Cookie记住我的功能管理器 -->
 	<bean id="remembermeManager" class="org.apache.shiro.web.mgt.CookieRememberMeManager">
@@ -30,10 +38,19 @@
 	
 	<!-- 定义项目之中要使用的认证与授权处理的Realm对象，该对象一定要配置到安全管理器之中 -->
 	<bean id="memberRealm" class="cn.mldn.enterpriseauth.ssm.realm.MemberRealm">
+		<property name="cachingEnabled" value="true"/> <!-- 开启缓存配置模式，默认为开启 -->
+		<property name="authenticationCachingEnabled" value="true"/>	<!-- 开启认证缓存 -->
+		<!-- 设置认证缓存的名称，该名称为“authenticationCache” -->
+		<property name="authenticationCacheName" value="authenticationCache"/>
+		<property name="authorizationCachingEnabled" value="true"/>	<!-- 开启授权缓存 -->
+		<!-- 设置授权缓存的名称，该名称为“authorizationCache” -->
+		<property name="authorizationCacheName" value="authorizationCache"/>
 		<property name="credentialsMatcher">
 			<bean class="cn.mldn.enterpriseauth.ssm.realm.matcher.DefaultCredentialsMatcher"/>
 		</property>
 	</bean>  
+	
+	
 	
 	<!-- 配置SessionManager，进行Session管理操作 -->
 	<bean id="sessionManager" class="org.apache.shiro.web.session.mgt.DefaultWebSessionManager">
@@ -43,6 +60,8 @@
 		<property name="sessionIdCookie" ref="sessionIdCookie"/>
 		<!-- 默认启用Cookie进行SessionID存储 -->
 		<property name="sessionIdCookieEnabled" value="true"/>
+		<!-- 关闭Session的处理检测 -->
+		<property name="sessionValidationSchedulerEnabled" value="false"/>
 	</bean>
 	
 	<!-- 定义Shiro的安全管理器，所有的认证与授权处理一定要首先交给安全处理器进行管理 -->
@@ -63,10 +82,10 @@
 	<!-- 所有的SessionID最终一定要进行数据的存储操作，那么既然要进行存储，现在就需要定义一个Session的数据处理操作 -->
 	<bean id="sessionDAO" class="org.apache.shiro.session.mgt.eis.EnterpriseCacheSessionDAO">
 		<!-- 定义在进行Session管理之中所使用的缓存策略 -->
-		<property name="activeSessionsCacheName" value="shiro-activeSessionCache"/>
+		<property name="activeSessionsCacheName" value="activeSessionCache"/>
 		<!-- 获得生成的SessionID数据 -->
 		<property name="sessionIdGenerator" ref="sessionIdGenerator"/>
-	</bean>
+	</bean> 
 	<!-- 配置SessionID的Cookie存储策略操作 -->
 	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">
 		<!-- 设置的是要保存的Cookie名字，默认Tomcat的保存Cookie名称为JSESSIONID -->
