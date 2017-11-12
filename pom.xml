@@ -494,5 +494,6 @@
     <module>enterpriseauth-service</module>
     <module>enterpriseauth-util</module>
     <module>enterpriseauth-ssm-cache</module>
+    <module>enterpriseauth-ssm-retry</module>
   </modules>
 </project>
