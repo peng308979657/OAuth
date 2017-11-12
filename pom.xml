@@ -493,5 +493,6 @@
     <module>enterpriseauth-api</module>
     <module>enterpriseauth-service</module>
     <module>enterpriseauth-util</module>
+    <module>enterpriseauth-ssm-cache</module>
   </modules>
 </project>
