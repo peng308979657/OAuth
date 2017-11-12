@@ -20,6 +20,8 @@
 				<entry key="activeSessionCache" value-ref="connectionFactoryActiveSessionCache"/>
 				<!-- 配置密码尝试次数的数据库连接 -->
 				<entry key="retryCount" value-ref="connectionFactoryRetryCount"/>
+				<!-- 配置剔出数据的处理操作 -->
+				<entry key="kickout" value-ref="connectionFactoryKickout"/>
 			</map>
 		</property>
 	</bean> 
@@ -104,6 +106,14 @@
 		<!-- 注销之后的跳转路径 -->
 		<property name="redirectUrl" value="/logout.action"/>
 	</bean>
+	<!-- 定义剔出的过滤器 -->
+	<bean id="kickoutFilter" class="cn.mldn.enterpriseauth.ssm.filter.KickoutSessionControlFilter">
+		<property name="sessionManager" ref="sessionManager"/>
+		<property name="cacheManager" ref="cacheManager"/>
+		<property name="kickoutUrl" value="/loginForm.action"/> <!-- 踢出后的路径 -->
+		<property name="maxSessionCount" value="1"/> <!-- 只允许一个用户访问 -->
+	</bean>
+	
 	
 	<!-- 通过配置FormAuthenticationFilter来实现内置登录的操作控制 -->
 	<bean id="formAuthenticationFilter" class="cn.mldn.enterpriseauth.ssm.filter.DefaultFormAuthenticationFilter">
@@ -134,6 +144,8 @@
 				<entry key="authc" value-ref="formAuthenticationFilter"/>
 				<!-- 当执行了注销的操作过滤时，会执行此项配置 -->
 				<entry key="logout" value-ref="logoutFilter"/>
+				<!-- 增加踢出重复的session过滤器配置 -->
+				<entry key="kickout" value-ref="kickoutFilter"/>
 			</map>
 		</property> 
 		<!-- 定义所有访问路径处理规则 -->
@@ -141,7 +153,7 @@
 			<value>
 				/logout.page=logout
 				/loginForm.action=authc
-				/pages/**=authc
+				/pages/**=authc,kickout
 			</value>
 		</property>
 	</bean> 

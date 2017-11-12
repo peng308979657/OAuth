@@ -33,7 +33,10 @@ public class RedisCacheManager implements CacheManager {
 			} else if ("retryCount".equals(name)) {
 				abstractCache = new RedisCache<Object,Object>() ;
 				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("retryCount"));
-			} 
+			} else if ("kickout".equals(name)) {
+				abstractCache = new RedisCache<Object,Object>() ;
+				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("kickout"));
+			}  
 			cache = abstractCache ; // 获得缓存对象
 		}
 		return cache ; 

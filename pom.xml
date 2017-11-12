@@ -495,5 +495,6 @@
     <module>enterpriseauth-util</module>
     <module>enterpriseauth-ssm-cache</module>
     <module>enterpriseauth-ssm-retry</module>
+    <module>enterpriseauth-ssm-kickout</module>
   </modules>
 </project>
