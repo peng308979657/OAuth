@@ -113,6 +113,13 @@
 		<property name="kickoutUrl" value="/loginForm.action"/> <!-- 踢出后的路径 -->
 		<property name="maxSessionCount" value="2"/> <!-- 只允许一个用户访问 -->
 	</bean>
+	<!-- 实现OAuth中的authcode接收处理的过滤器 -->
+	<bean id="oauthFilter" class="cn.mldn.enterpriseauth.ssm.filter.OAuthAuthenticatingFilter">
+		<!-- OAuth获取authcode失败之后的跳转路径 -->
+		<property name="failureUrl" value="/oauthFailure.action"/>
+		<!-- 要获取返回的authcode的信息参数名称 -->
+		<property name="authcodeParam" value="code"/>
+	</bean> 
 	
 	
 	<!-- 通过配置FormAuthenticationFilter来实现内置登录的操作控制 -->

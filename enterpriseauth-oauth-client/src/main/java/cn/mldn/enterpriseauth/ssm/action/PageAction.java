@@ -10,6 +10,11 @@ public class PageAction {
 	public String loginForm() {
 		return "login";
 	}
+	
+	@RequestMapping("/oauthFailure")
+	public String oauthFailure() {
+		return "oauth_failure";
+	}
 
 	@RequestMapping("/pages/back/welcome")
 	public String welcome() {
