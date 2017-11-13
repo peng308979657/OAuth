@@ -1,5 +1,7 @@
 package cn.mldn.enterpriseauth.ssm.action;
 
+import java.net.URI;
+
 import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -12,6 +14,10 @@ import org.apache.oltu.oauth2.common.OAuth;
 import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
+import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.subject.Subject;
+import org.apache.shiro.web.util.WebUtils;
+import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
@@ -35,18 +41,7 @@ public class AuthorizeAction {
 			String clientId = oauthRequest.getClientId() ; // 取得发送来的client_id参数内容
 			// 获得了ClientID的目的是为了要对这个请求的合法性做出检测
 			Client client = this.clientService.getByClientId(clientId) ;
-			if (client != null) {	// 现在的client_id合法
-				String authCode = null ; // 现在就需要生成一个认证码
-				// 要获得一个OAuth的responseType的信息，该信息一定是code
-				String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE) ;
-				// 明确的描述当前可以处理的responseType类型为code
-				if(responseType.equals(ResponseType.CODE.toString())) {
-					// 定义一个用于分配认证码的处理程序类，这个类生成的认证码需要设置一个加密处理模式
-					OAuthIssuerImpl oauthIssuer = new OAuthIssuerImpl(new MD5Generator()) ;
-					authCode = oauthIssuer.authorizationCode() ; // 生成认证码
-				}
-				return new ResponseEntity<String>(authCode, HttpStatus.OK) ; // 回应状态码
-			} else {	// 如果现在clientId没有获得
+			if (client == null) {	// 客户非法
 				OAuthResponse oauthResponse = OAuthASResponse
 						.errorResponse(HttpServletResponse.SC_BAD_REQUEST) 
 						.setError(OAuthError.TokenResponse.INVALID_CLIENT)
@@ -55,6 +50,34 @@ public class AuthorizeAction {
 				return new ResponseEntity<String>(oauthResponse.getBody(),
 						HttpStatus.valueOf(oauthResponse.getResponseStatus()));
 			}
+			Subject subject = SecurityUtils.getSubject() ; // 获得当前用户的信息
+			if (!subject.isAuthenticated()) { // 当前用户没有登录认证过
+				WebUtils.saveRequest(request); // 登录之后还要回到这个页面
+				HttpHeaders headers = new HttpHeaders() ; // 创建http请求信息头
+				headers.setLocation(new URI(request.getContextPath() + "/loginForm.action"));
+				return new ResponseEntity<String>(headers,HttpStatus.TEMPORARY_REDIRECT) ;
+			}
+			String authCode = null ; // 现在就需要生成一个认证码
+			if (client != null) {	// 现在的client_id合法，在登录认证之后执行
+				// 要获得一个OAuth的responseType的信息，该信息一定是code
+				String responseType = oauthRequest.getParam(OAuth.OAUTH_RESPONSE_TYPE) ;
+				// 明确的描述当前可以处理的responseType类型为code
+				if(responseType.equals(ResponseType.CODE.toString())) {
+					// 定义一个用于分配认证码的处理程序类，这个类生成的认证码需要设置一个加密处理模式
+					OAuthIssuerImpl oauthIssuer = new OAuthIssuerImpl(new MD5Generator()) ;
+					authCode = oauthIssuer.authorizationCode() ; // 生成认证码
+				} 
+			}
+			// 当登录完成之后应该跳转到redirect_url所给定的路径（接入客户服务器的地址）
+			OAuthASResponse.OAuthAuthorizationResponseBuilder builder = OAuthASResponse.authorizationResponse(request,
+					HttpServletResponse.SC_FOUND);	// 构建一个回应请求的构造器（code、redirect_url跳转）
+			builder.setCode(authCode) ; // 设置authCode的信息
+			String redirectUrl = oauthRequest.getRedirectURI() ; // 获得回应路径
+			// 创建个回应地址：redirect_url?code=authcode
+			OAuthResponse oauthResponse = builder.location(redirectUrl).buildQueryMessage() ;
+			HttpHeaders headers = new HttpHeaders() ; // 定义要返回的头部处理信息
+			headers.setLocation(new URI(oauthResponse.getLocationUri())); // 设置地址
+			return new ResponseEntity<String>(headers, HttpStatus.valueOf(oauthResponse.getResponseStatus())) ; // 回应状态码 
 		} catch (Exception e) {	// 如果这个时候程序上出现了异常操作
 			e.printStackTrace();
 			return new ResponseEntity<String>("服务器内部错误，请稍后重试！",
