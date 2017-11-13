@@ -20,6 +20,8 @@
 				<entry key="activeSessionCache" value-ref="connectionFactoryActiveSessionCache"/>
 				<!-- 配置密码尝试次数的数据库连接 -->
 				<entry key="retryCount" value-ref="connectionFactoryRetryCount"/>
+				<!-- 追加authcode的缓存处理连接 -->
+				<entry key="authcode" value-ref="connectionFactoryAuthcode"/>
 			</map>
 		</property>
 	</bean> 

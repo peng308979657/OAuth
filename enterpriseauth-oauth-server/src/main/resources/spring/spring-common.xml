@@ -15,3 +15,4 @@
 	<!-- 现在将整个的Shiro的生命周期的控制直接交由Spring负责管理完成 -->
 	<bean id="lifecycleBeanPostProcessor" class="org.apache.shiro.spring.LifecycleBeanPostProcessor"/>
 </beans>
+ 

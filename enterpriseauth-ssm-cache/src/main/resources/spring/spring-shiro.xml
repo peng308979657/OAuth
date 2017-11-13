@@ -12,11 +12,11 @@
 	<bean id="cacheManager" class="cn.mldn.enterpriseauth.ssm.util.cache.manager.RedisCacheManager">
 		<property name="connectionFactoryMap">
 			<map>
-				<!-- 配置认证缓存的Redis数据库连接池 -->
-				<entry key="authentication" value-ref="connectionFactoryAuthentication"/>
-				<!-- 配置授权缓存的Redis数据库连接池 -->
-				<entry key="authorization" value-ref="connectionFactoryAuthorization"/>
-				<!-- 配置Session缓存的redis数据库连接池 -->
+				<!-- 配置认证的缓存连接池 -->
+				<entry key="authenticationCache" value-ref="connectionFactoryAuthentication"/>
+				<!-- 配置授权的缓存连接池 -->
+				<entry key="authorizationCache" value-ref="connectionFactoryAuthorization"/>
+				<!-- 配置Session的缓存连接池 -->
 				<entry key="activeSessionCache" value-ref="connectionFactoryActiveSessionCache"/>
 			</map>
 		</property>
@@ -38,13 +38,13 @@
 	
 	<!-- 定义项目之中要使用的认证与授权处理的Realm对象，该对象一定要配置到安全管理器之中 -->
 	<bean id="memberRealm" class="cn.mldn.enterpriseauth.ssm.realm.MemberRealm">
-		<property name="cachingEnabled" value="true"/> <!-- 开启缓存配置模式，默认为开启 -->
-		<property name="authenticationCachingEnabled" value="true"/>	<!-- 开启认证缓存 -->
-		<!-- 设置认证缓存的名称，该名称为“authenticationCache” -->
-		<property name="authenticationCacheName" value="authentication"/>
-		<property name="authorizationCachingEnabled" value="true"/>	<!-- 开启授权缓存 -->
-		<!-- 设置授权缓存的名称，该名称为“authorizationCache” -->
-		<property name="authorizationCacheName" value="authorization"/>
+		<property name="cachingEnabled" value="true"/>	<!-- 启用缓存 -->
+		<property name="authenticationCachingEnabled" value="true"/> <!-- 启用认证缓存 -->
+		<!-- 设置认证缓存的名字，该缓存的操作统一通过RedisCacheManager管理 -->
+		<property name="authenticationCacheName" value="authenticationCache"/>
+		<property name="authorizationCachingEnabled" value="true"/> <!-- 启用授权缓存 -->
+		<!-- 设置授权缓存的名字， 该缓存的操作统一通过RedisCacheManager管理-->
+		<property name="authorizationCacheName" value="authorizationCache"/> 
 		<property name="credentialsMatcher">
 			<bean class="cn.mldn.enterpriseauth.ssm.realm.matcher.DefaultCredentialsMatcher"/>
 		</property>
@@ -83,6 +83,8 @@
 		<property name="activeSessionsCacheName" value="activeSessionCache"/>
 		<!-- 获得生成的SessionID数据 -->
 		<property name="sessionIdGenerator" ref="sessionIdGenerator"/>
+		<!-- 将SessionDAO缓存也统一交给CacheManager负责管理 -->
+		<property name="cacheManager" ref="cacheManager"/>
 	</bean> 
 	<!-- 配置SessionID的Cookie存储策略操作 -->
 	<bean id="sessionIdCookie" class="org.apache.shiro.web.servlet.SimpleCookie">

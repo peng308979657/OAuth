@@ -15,8 +15,11 @@ import org.apache.oltu.oauth2.common.error.OAuthError;
 import org.apache.oltu.oauth2.common.message.OAuthResponse;
 import org.apache.oltu.oauth2.common.message.types.ResponseType;
 import org.apache.shiro.SecurityUtils;
+import org.apache.shiro.cache.CacheManager;
 import org.apache.shiro.subject.Subject;
 import org.apache.shiro.web.util.WebUtils;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.PropertySource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -26,12 +29,23 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import cn.mldn.enterpriseauth.service.IClientService;
+import cn.mldn.enterpriseauth.ssm.util.cache.RedisCache;
 import cn.mldn.enterpriseauth.vo.Client;
 
 @Controller
+@PropertySource("classpath:config/oauth.properties")
 public class AuthorizeAction {
+	@Value("${authcode.expire}") 
+	private String expire ; // 该内容的配置通过配置文件定义
 	@Resource
 	private IClientService clientService ;
+	
+	private RedisCache<Object,Object> redisCache ;
+	@Resource(name="cacheManager")
+	public void setCacheManager(CacheManager cacheManager) {
+		this.redisCache = (RedisCache<Object,Object>) cacheManager.getCache("authcode") ;
+	}
+	
 	@ResponseBody
 	@RequestMapping(value="/authorize" ,method=RequestMethod.GET)
 	public Object authorize(HttpServletRequest request) {
@@ -66,6 +80,8 @@ public class AuthorizeAction {
 					// 定义一个用于分配认证码的处理程序类，这个类生成的认证码需要设置一个加密处理模式
 					OAuthIssuerImpl oauthIssuer = new OAuthIssuerImpl(new MD5Generator()) ;
 					authCode = oauthIssuer.authorizationCode() ; // 生成认证码
+					// 由于每一个不同的用户请求都会生成不同的authcode，那么将生成的authcode的数据与当前用户名一起保存
+					this.redisCache.putEx(authCode, subject.getPrincipal(), this.expire) ;
 				} 
 			}
 			// 当登录完成之后应该跳转到redirect_url所给定的路径（接入客户服务器的地址）

@@ -21,18 +21,21 @@ public class RedisCacheManager implements CacheManager {
 		Cache<Object,Object> cache = CACHES.get(name) ; // 获得已经保存的缓存对象
 		if (cache == null) {	// 没有缓存对象
 			AbstractRedisCache<Object, Object> abstractCache = null ;
-			if ("authentication".equals(name)) {	// 获得的是认证缓存
+			if ("authenticationCache".equals(name)) {	// 获得的是认证缓存
 				abstractCache = new RedisCache<Object,Object>() ;
-				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("authentication"));
-			} else if ("authorization".equals(name)) {	// 授权缓存
+				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("authenticationCache"));
+			} else if ("authorizationCache".equals(name)) {	// 授权缓存
 				abstractCache = new RedisCache<Object,Object>() ;
-				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("authorization"));
+				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("authorizationCache"));
 			} else if ("activeSessionCache".equals(name)) {
 				abstractCache = new RedisCache<Object,Object>() ;
 				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("activeSessionCache"));
 			} else if ("retryCount".equals(name)) {
 				abstractCache = new RedisCache<Object,Object>() ;
 				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("retryCount"));
+			} else if ("authcode".equals(name)) {
+				abstractCache = new RedisCache<Object,Object>() ;
+				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("authcode"));
 			} 
 			cache = abstractCache ; // 获得缓存对象
 		}
