@@ -64,6 +64,7 @@ public class KickoutSessionControlFilter extends AccessControlFilter {
 				} else {	// 踢出前一个
 					kickoutSessionId = allSessions.removeLast() ; // 踢出后面的一个
 				}
+				this.cache.put(mid, allSessions) ;// 重新保存一次session
 				// 获得即将被提出的SessionID的对应的Session对象信息
 				Session kickoutSession = this.sessionManager.getSession(new DefaultSessionKey(kickoutSessionId));
 				if (kickoutSession != null) {	// 这个用户还在呢

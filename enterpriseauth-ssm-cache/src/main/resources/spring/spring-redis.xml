@@ -10,7 +10,7 @@
 		<property name="maxWaitMillis" value="${redis.pool.maxWaitMillis}"/>	<!-- 最大等待时间 -->
 		<property name="testOnBorrow" value="${redis.pool.testOnBorrow}"/>	<!-- 确保取得可用连接 -->
 	</bean> 
-	<!-- 配置负责授权缓存的数据库连接池 -->
+	<!-- 配置Session缓存数据库连接 -->
 	<bean id="connectionFactoryActiveSessionCache" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
 		<property name="poolConfig" ref="jedisPoolConfig"/>	<!-- 引用进行连接池的配置项 -->
 		<property name="hostName" value="${redis.host}"/>	<!-- Redis的连接地址 -->
@@ -18,7 +18,7 @@
 		<property name="password" value="${redis.password}"/>	<!-- 定义的是连接密码，认证密码 -->
 		<property name="timeout" value="${redis.timeout}"/>	<!-- 连接的超时时间 -->
 		<property name="database" value="${redis.db.activeSessionCache}"/>
-	</bean>
+	</bean> 
 	<!-- 配置负责授权缓存的数据库连接池 -->
 	<bean id="connectionFactoryAuthorization" class="org.springframework.data.redis.connection.jedis.JedisConnectionFactory">
 		<property name="poolConfig" ref="jedisPoolConfig"/>	<!-- 引用进行连接池的配置项 -->

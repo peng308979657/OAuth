@@ -13,9 +13,9 @@
 		<property name="connectionFactoryMap">
 			<map>
 				<!-- 配置认证缓存的Redis数据库连接池 -->
-				<entry key="authentication" value-ref="connectionFactoryAuthentication"/>
+				<entry key="authenticationCache" value-ref="connectionFactoryAuthentication"/>
 				<!-- 配置授权缓存的Redis数据库连接池 -->
-				<entry key="authorization" value-ref="connectionFactoryAuthorization"/>
+				<entry key="authorizationCache" value-ref="connectionFactoryAuthorization"/>
 				<!-- Session数据的缓存处理 -->
 				<entry key="activeSessionCache" value-ref="connectionFactoryActiveSessionCache"/>
 				<!-- 配置密码尝试次数的数据库连接 -->
@@ -111,7 +111,7 @@
 		<property name="sessionManager" ref="sessionManager"/>
 		<property name="cacheManager" ref="cacheManager"/>
 		<property name="kickoutUrl" value="/loginForm.action"/> <!-- 踢出后的路径 -->
-		<property name="maxSessionCount" value="1"/> <!-- 只允许一个用户访问 -->
+		<property name="maxSessionCount" value="2"/> <!-- 只允许一个用户访问 -->
 	</bean>
 	
 	

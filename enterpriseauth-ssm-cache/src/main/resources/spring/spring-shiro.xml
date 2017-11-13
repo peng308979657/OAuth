@@ -16,7 +16,7 @@
 				<entry key="authentication" value-ref="connectionFactoryAuthentication"/>
 				<!-- 配置授权缓存的Redis数据库连接池 -->
 				<entry key="authorization" value-ref="connectionFactoryAuthorization"/>
-				<!-- Session数据的缓存处理 -->
+				<!-- 配置Session缓存的redis数据库连接池 -->
 				<entry key="activeSessionCache" value-ref="connectionFactoryActiveSessionCache"/>
 			</map>
 		</property>
@@ -41,10 +41,10 @@
 		<property name="cachingEnabled" value="true"/> <!-- 开启缓存配置模式，默认为开启 -->
 		<property name="authenticationCachingEnabled" value="true"/>	<!-- 开启认证缓存 -->
 		<!-- 设置认证缓存的名称，该名称为“authenticationCache” -->
-		<property name="authenticationCacheName" value="authenticationCache"/>
+		<property name="authenticationCacheName" value="authentication"/>
 		<property name="authorizationCachingEnabled" value="true"/>	<!-- 开启授权缓存 -->
 		<!-- 设置授权缓存的名称，该名称为“authorizationCache” -->
-		<property name="authorizationCacheName" value="authorizationCache"/>
+		<property name="authorizationCacheName" value="authorization"/>
 		<property name="credentialsMatcher">
 			<bean class="cn.mldn.enterpriseauth.ssm.realm.matcher.DefaultCredentialsMatcher"/>
 		</property>
@@ -60,8 +60,6 @@
 		<property name="sessionIdCookie" ref="sessionIdCookie"/>
 		<!-- 默认启用Cookie进行SessionID存储 -->
 		<property name="sessionIdCookieEnabled" value="true"/>
-		<!-- 关闭Session的处理检测 -->
-		<property name="sessionValidationSchedulerEnabled" value="false"/>
 	</bean>
 	
 	<!-- 定义Shiro的安全管理器，所有的认证与授权处理一定要首先交给安全处理器进行管理 -->
