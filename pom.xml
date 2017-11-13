@@ -13,7 +13,6 @@
 	<properties>
 		<enterpriseauth.version>0.0.1</enterpriseauth.version>
 	
-		<oauth2.version>0.0.1</oauth2.version>
 		<oltu.version>1.0.2</oltu.version>
 		<shiro.version>1.3.2</shiro.version>
 		<!-- 配置MyBatis相关开发依赖包版本 -->
@@ -87,21 +86,21 @@
 				<artifactId>spring-data-redis</artifactId>
 				<version>${spring-data.redis.version}</version>
 			</dependency>
-			<dependency>
-				<groupId>org.apache.oltu.oauth2</groupId>
-				<artifactId>org.apache.oltu.oauth2.client</artifactId>
-				<version>${oltu.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.oltu.oauth2</groupId>
-				<artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
-				<version>${oltu.version}</version>
-			</dependency>
-			<dependency>
-				<groupId>org.apache.oltu.oauth2</groupId>
-				<artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
-				<version>${oltu.version}</version>
-			</dependency>
+		<dependency>
+			<groupId>org.apache.oltu.oauth2</groupId>
+			<artifactId>org.apache.oltu.oauth2.client</artifactId>
+			<version>${oltu.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.oltu.oauth2</groupId>
+			<artifactId>org.apache.oltu.oauth2.authzserver</artifactId>
+			<version>${oltu.version}</version>
+		</dependency>
+		<dependency>
+			<groupId>org.apache.oltu.oauth2</groupId>
+			<artifactId>org.apache.oltu.oauth2.resourceserver</artifactId>
+			<version>${oltu.version}</version>
+		</dependency>
 
 			<dependency>
 				<groupId>commons-logging</groupId>
