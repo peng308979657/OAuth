@@ -498,5 +498,6 @@
     <module>enterpriseauth-oauth-server</module>
     <module>enterpriseauth-oauth-client</module>
     <module>enterpriseauth-service-oauth-client</module>
+    <module>enterpriseauth-service-oauth-member</module>
   </modules>
 </project>
