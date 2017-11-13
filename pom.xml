@@ -499,5 +499,6 @@
     <module>enterpriseauth-oauth-client</module>
     <module>enterpriseauth-service-oauth-client</module>
     <module>enterpriseauth-service-oauth-member</module>
+    <module>enterpriseauth-service-author</module>
   </modules>
 </project>

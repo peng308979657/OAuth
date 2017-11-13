@@ -41,7 +41,12 @@
 	</bean>
 	
 	<!-- 定义项目之中要使用的认证与授权处理的Realm对象，该对象一定要配置到安全管理器之中 -->
-	<bean id="memberRealm" class="cn.mldn.enterpriseauth.ssm.realm.MemberRealm">
+	<bean id="oauthRealm" class="cn.mldn.enterpriseauth.ssm.realm.OAuthRealm">
+		<property name="accessTokenUrl" value="${oauth.token.url}"/>
+		<property name="clientId" value="${oauth.client.id}"/>
+		<property name="clientSecret" value="${oauth.client.secret}"/>
+		<property name="redirectUri" value="${oauth.redirect.uri}"/>
+		<property name="memberInfoUrl" value="${oauth.memberinfo.url}"/>
 		<property name="cachingEnabled" value="true"/> <!-- 开启缓存配置模式，默认为开启 -->
 		<property name="authenticationCachingEnabled" value="true"/>	<!-- 开启认证缓存 -->
 		<!-- 设置认证缓存的名称，该名称为“authenticationCache” -->
@@ -49,13 +54,6 @@
 		<property name="authorizationCachingEnabled" value="true"/>	<!-- 开启授权缓存 -->
 		<!-- 设置授权缓存的名称，该名称为“authorizationCache” -->
 		<property name="authorizationCacheName" value="authorizationCache"/>
-		<property name="credentialsMatcher">
-			<bean class="cn.mldn.enterpriseauth.ssm.realm.matcher.DefaultCredentialsMatcher">
-				<property name="cacheManager" ref="cacheManager"/>
-				<property name="expire" value="${shiro.retry.expire}"/>
-				<property name="maxRetryCount" value="${shiro.retry.max}"/>
-			</bean>
-		</property>
 	</bean>  
 	
 	
@@ -74,7 +72,7 @@
 	
 	<!-- 定义Shiro的安全管理器，所有的认证与授权处理一定要首先交给安全处理器进行管理 -->
 	<bean id="securityManager" class="org.apache.shiro.web.mgt.DefaultWebSecurityManager">
-		<property name="realm" ref="memberRealm"/>	<!-- 配置要使用的Realm对象 -->
+		<property name="realm" ref="oauthRealm"/>	<!-- 配置要使用的Realm对象 -->
 		<!-- 定义要使用的缓存组件，本次使用的是EHCache -->
 		<property name="cacheManager" ref="cacheManager"/>
 		<!-- 配置在安全管理器之中要使用的Session管理器 -->
@@ -123,32 +121,34 @@
 	
 	
 	<!-- 通过配置FormAuthenticationFilter来实现内置登录的操作控制 -->
-	<bean id="formAuthenticationFilter" class="cn.mldn.enterpriseauth.ssm.filter.DefaultFormAuthenticationFilter">
-		<property name="usernameParam" value="mid"/>	<!-- 定义表单参数名称 -->
-		<property name="passwordParam" value="password"/>	<!-- 定义表单参数名称 -->
-		<!-- 如果要进行登录的提交一定要有一个控制器（Servlet、Filter），但是至少需要有一个提交地址 -->
+<!-- 	<bean id="formAuthenticationFilter" class="cn.mldn.enterpriseauth.ssm.filter.DefaultFormAuthenticationFilter">
+		<property name="usernameParam" value="mid"/>	定义表单参数名称
+		<property name="passwordParam" value="password"/>	定义表单参数名称
+		如果要进行登录的提交一定要有一个控制器（Servlet、Filter），但是至少需要有一个提交地址
 		<property name="loginUrl" value="/loginForm.action"/>
-		<!-- 配置登录的相关错误信息显示的属性名称，此处配置为error -->
+		配置登录的相关错误信息显示的属性名称，此处配置为error
 		<property name="failureKeyAttribute" value="error"/>
-		<!-- 配置rememberme选项的操作参数 -->
+		配置rememberme选项的操作参数
 		<property name="rememberMeParam" value="rememberme"/>
 		<property name="randname" value="rand"/>
 		<property name="randparam" value="code"/>
-	</bean> 
+	</bean>  -->
 	<!-- 配置文件里面已经将所有的配置交由Spring负责了，所以对于过滤的处理操作一定要交给指定的类完成配置 -->
 	<bean id="shiroFilter" class="org.apache.shiro.spring.web.ShiroFilterFactoryBean">
 		<!-- 在此过滤管理之中定义要使用的安全管理器 -->
 		<property name="securityManager" ref="securityManager"/>
-		<!-- 当认证或授权出现了错误之后应该跳转到登录页面，要由Action跳转到JSP页面 -->
-		<property name="loginUrl" value="/loginForm.action"/>
+		<!-- 登录页面需要更改为oauth的访问处理路径 -->
+		<property name="loginUrl" value="${oauth.login.url}"/>
 		<!-- 当授权失败之后跳转的页面路径，也是通过Action跳转 -->
 		<property name="unauthorizedUrl" value="/unauth.action"/>
 		<!-- 当登录成功之后跳转到的指定页面 -->
 		<property name="successUrl" value="/pages/back/welcome.action"/>
 		<property name="filters">	<!-- 由于现在重新定义了过滤，所以要重新追加 -->
 			<map>
+				<!-- 定义一个负责实现登录认证的Filter配置项 -->
+				<entry key="oauthAuthc" value-ref="oauthFilter"/>
 				<!-- 当执行了authc的检测的时候，明确的找到新的过滤配置类 -->
-				<entry key="authc" value-ref="formAuthenticationFilter"/>
+				<!-- <entry key="authc" value-ref="formAuthenticationFilter"/> -->
 				<!-- 当执行了注销的操作过滤时，会执行此项配置 -->
 				<entry key="logout" value-ref="logoutFilter"/>
 				<!-- 增加踢出重复的session过滤器配置 -->
@@ -159,8 +159,8 @@
 		<property name="filterChainDefinitions">
 			<value>
 				/logout.page=logout
-				/loginForm.action=authc
-				/pages/**=authc,kickout
+				/shiro-oauth=oauthAuthc
+				/pages/**=user,kickout
 			</value>
 		</property>
 	</bean> 
