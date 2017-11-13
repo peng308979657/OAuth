@@ -36,6 +36,9 @@ public class RedisCacheManager implements CacheManager {
 			} else if ("authcode".equals(name)) {
 				abstractCache = new RedisCache<Object,Object>() ;
 				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("authcode"));
+			}  else if ("token".equals(name)) {
+				abstractCache = new RedisCache<Object,Object>() ;
+				abstractCache.setConnectionFactory(this.connectionFactoryMap.get("token"));
 			} 
 			cache = abstractCache ; // 获得缓存对象
 		}

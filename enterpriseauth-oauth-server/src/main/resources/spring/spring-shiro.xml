@@ -22,6 +22,8 @@
 				<entry key="retryCount" value-ref="connectionFactoryRetryCount"/>
 				<!-- 追加authcode的缓存处理连接 -->
 				<entry key="authcode" value-ref="connectionFactoryAuthcode"/>
+				<!-- 追加token的缓存处理连接 -->
+				<entry key="token" value-ref="connectionFactoryToken"/>
 			</map>
 		</property>
 	</bean> 
