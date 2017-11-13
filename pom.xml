@@ -498,5 +498,6 @@
     <module>enterpriseauth-ssm-kickout</module>
     <module>enterpriseauth-oauth-server</module>
     <module>enterpriseauth-oauth-client</module>
+    <module>enterpriseauth-service-oauth-client</module>
   </modules>
 </project>
